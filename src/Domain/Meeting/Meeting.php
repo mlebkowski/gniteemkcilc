@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain\Meeting;
 
+use App\Common\Clock\Clock;
 use App\Domain\Meeting\Problems\MeetingFullException;
 use App\Domain\User\User;
 use DateInterval;
@@ -18,7 +20,7 @@ final class Meeting
     public readonly string $name;
     public readonly DateTimeImmutable $startTime;
     public readonly DateTimeImmutable $endTime;
-    /** @var Collection<int,User>  */
+    /** @var Collection<int,User> */
     private Collection $participants;
 
     public function __construct(string $name, DateTimeImmutable $startTime)
@@ -42,11 +44,11 @@ final class Meeting
         $this->participants->add($participant);
     }
 
-    public function getStatus(): MeetingStatus
+    public function getStatus(Clock $clock): MeetingStatus
     {
         return match (true) {
-            $this->endTime < new DateTimeImmutable() => MeetingStatus::Done,
-            $this->startTime < new DateTimeImmutable() => MeetingStatus::InSession,
+            $this->endTime < $clock->now() => MeetingStatus::Done,
+            $this->startTime < $clock->now() => MeetingStatus::InSession,
             $this->isFull() => MeetingStatus::Full,
             default => MeetingStatus::OpenToRegistration,
         };

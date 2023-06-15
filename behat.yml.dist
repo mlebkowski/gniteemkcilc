@@ -2,6 +2,7 @@ default:
     suites:
         default:
             contexts:
+                - App\Behat\ClockContext
                 - App\Behat\MeetingContext
 
     extensions:

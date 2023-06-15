@@ -6,18 +6,20 @@ namespace App\Application\Controller;
 
 use App\Application\DataTransfer\CreateMeetingInput;
 use App\Application\DataTransfer\MeetingOutput;
+use App\Application\DataTransfer\MeetingOutputFactory;
 use App\Domain\Meeting\Meeting;
 use App\Domain\Meeting\MeetingRepository;
 use App\Domain\Meeting\Problems\MeetingNotFoundException;
-use DateTimeImmutable;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 final readonly class MeetingController
 {
-    public function __construct(private MeetingRepository $meetings)
-    {
+    public function __construct(
+        private MeetingRepository $meetings,
+        private MeetingOutputFactory $factory,
+    ) {
     }
 
     #[Route('/meeting/{id}')]
@@ -29,15 +31,15 @@ final readonly class MeetingController
             throw new NotFoundHttpException();
         }
 
-        return MeetingOutput::ofMeeting($meeting);
+        return $this->factory->ofMeeting($meeting);
     }
 
     #[Route('/meeting', methods: ['POST'])]
     public function create(#[MapRequestPayload] CreateMeetingInput $input): MeetingOutput
     {
-        $meeting = new Meeting($input->name, new DateTimeImmutable('+1 hour'));
+        $meeting = new Meeting($input->name, $input->startDate);
         $this->meetings->save($meeting);
 
-        return MeetingOutput::ofMeeting($meeting);
+        return $this->factory->ofMeeting($meeting);
     }
 }
