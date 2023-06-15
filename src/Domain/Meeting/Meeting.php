@@ -11,15 +11,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Ulid;
 
-final readonly class Meeting
+final class Meeting
 {
     private const ParticipantLimit = 5;
-    public string $id;
-    public string $name;
-    public DateTimeImmutable $startTime;
-    public DateTimeImmutable $endTime;
+    public readonly string $id;
+    public readonly string $name;
+    public readonly DateTimeImmutable $startTime;
+    public readonly DateTimeImmutable $endTime;
     /** @var Collection<int,User>  */
-    public Collection $participants;
+    private Collection $participants;
 
     public function __construct(string $name, DateTimeImmutable $startTime)
     {
