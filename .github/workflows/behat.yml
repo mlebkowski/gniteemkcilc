@@ -9,6 +9,7 @@ jobs:
   behat:
     env:
       APP_ENV: test
+      DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test"
     runs-on: ubuntu-latest
     steps:
       - name: Shutdown Ubuntu MySQL (SUDO)
@@ -49,6 +50,4 @@ jobs:
           bin/console doctrine:database:create
           bin/console doctrine:schema:update --force
       - name: Behat
-        env:
-          DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test"
         run: ./vendor/bin/behat --format=progress --colors
