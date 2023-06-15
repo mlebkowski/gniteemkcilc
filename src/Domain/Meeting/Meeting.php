@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain\Meeting;
 
+use App\Common\Clock\Clock;
 use App\Domain\Meeting\Problems\MeetingFullException;
 use App\Domain\User\User;
 use DateInterval;
@@ -11,15 +13,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Ulid;
 
-final readonly class Meeting
+final class Meeting
 {
     private const ParticipantLimit = 5;
-    public string $id;
-    public string $name;
-    public DateTimeImmutable $startTime;
-    public DateTimeImmutable $endTime;
-    /** @var Collection<int,User>  */
-    public Collection $participants;
+    public readonly string $id;
+    public readonly string $name;
+    public readonly DateTimeImmutable $startTime;
+    public readonly DateTimeImmutable $endTime;
+    /** @var Collection<int,User> */
+    private Collection $participants;
 
     public function __construct(string $name, DateTimeImmutable $startTime)
     {
@@ -35,10 +37,25 @@ final readonly class Meeting
      */
     public function addAParticipant(User $participant): void
     {
-        if ($this->participants->count() >= self::ParticipantLimit) {
+        if ($this->isFull()) {
             throw Problems\MeetingFullException::ofMeeting($this);
         }
 
         $this->participants->add($participant);
+    }
+
+    public function getStatus(Clock $clock): MeetingStatus
+    {
+        return match (true) {
+            $this->endTime < $clock->now() => MeetingStatus::Done,
+            $this->startTime < $clock->now() => MeetingStatus::InSession,
+            $this->isFull() => MeetingStatus::Full,
+            default => MeetingStatus::OpenToRegistration,
+        };
+    }
+
+    private function isFull(): bool
+    {
+        return $this->participants->count() >= self::ParticipantLimit;
     }
 }

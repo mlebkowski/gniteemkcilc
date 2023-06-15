@@ -1,7 +1,11 @@
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
+  _defaults:
+    autowire: true
+    autoconfigure: true
 
-    App\Behat\:
-        resource: '../tests/Behat/*'
+  App\Behat\:
+    resource: '../tests/Behat/*'
+
+  App\Common\Clock\Clock: '@App\Common\Clock\AdjustableClock'
+  App\Common\Clock\AdjustableClock:
+

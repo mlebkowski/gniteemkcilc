@@ -5,21 +5,24 @@ namespace App\Infrastructure\Meeting;
 
 use App\Domain\Meeting\Meeting;
 use App\Domain\Meeting\MeetingRepository;
+use App\Domain\Meeting\Problems\MeetingNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 
-final class DoctrineMeetingRepository implements MeetingRepository
+final readonly class DoctrineMeetingRepository implements MeetingRepository
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->entityManager = $entityManager;
     }
 
     public function get(string $meetingId): Meeting
     {
-        return $this->entityManager->getRepository(Meeting::class)->find($meetingId)
-            ?? throw new RuntimeException('Oops!');
+        return $this->em->getRepository(Meeting::class)->find($meetingId)
+            ?? throw MeetingNotFoundException::ofId($meetingId);
+    }
+
+    public function save(Meeting $meeting): void
+    {
+        $this->em->persist($meeting);
+        $this->em->flush();
     }
 }

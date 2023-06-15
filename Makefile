@@ -49,7 +49,7 @@ database-up: ## Spin up dev database
 ## —— Tests 🧪 ———————————————————————————————————————————————————————————————
 test-unit: up ## Run php unit on fresh container
 	docker-compose exec php sh -c "\
-		APP_ENV='test'; \
+		export APP_ENV='test'; \
 		bin/console about; \
 		bin/console do:da:dr --force; \
 		bin/console do:da:cr --if-not-exists && bin/console do:sch:upd --force; \
@@ -59,7 +59,7 @@ test-unit: up ## Run php unit on fresh container
 
 test-behat: up ## Run behat on fresh container
 	docker-compose exec php sh -c "\
-		APP_ENV='test'; \
+		export APP_ENV='test'; \
 		bin/console about; \
 		bin/console do:da:dr --force; \
 		bin/console do:da:cr --if-not-exists && bin/console do:sch:upd --force; \
@@ -69,7 +69,7 @@ test-behat: up ## Run behat on fresh container
 
 test: up ## Run all tests on fresh container
 	docker-compose exec php sh -c "\
-		APP_ENV='test'; \
+		export APP_ENV='test'; \
 		bin/console about; \
 		bin/console do:da:dr --force; \
 		bin/console do:da:cr --if-not-exists && bin/console do:sch:upd --force; \
