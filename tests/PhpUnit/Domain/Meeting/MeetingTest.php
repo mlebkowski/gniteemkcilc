@@ -13,10 +13,7 @@ class MeetingTest extends TestCase
 
     public function test it allows only a maximum number of participants(): void
     {
-        $sut = MeetingMother::some();
-        foreach (range(1,5) as $_) {
-            $sut->addAParticipant(UserMother::some());
-        }
+        $sut = MeetingMother::withMaxParticipants();
 
         self::expectException(MeetingFullException::class);
         $sut->addAParticipant(UserMother::some());

@@ -9,7 +9,7 @@ use Exception;
 
 final class MeetingFullException extends Exception
 {
-    public function ofMeeting(Meeting $meeting): self
+    public static function ofMeeting(Meeting $meeting): self
     {
         return new self(
             sprintf(

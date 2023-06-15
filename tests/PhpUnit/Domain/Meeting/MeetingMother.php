@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Meeting;
 
+use App\Domain\User\UserMother;
 use DateTimeImmutable;
 
 final class MeetingMother
@@ -14,5 +15,16 @@ final class MeetingMother
             '',
             new DateTimeImmutable(),
         );
+    }
+
+    public static function withMaxParticipants(): Meeting
+    {
+        $meeting = self::some();
+        $meeting->addAParticipant(UserMother::some());
+        $meeting->addAParticipant(UserMother::some());
+        $meeting->addAParticipant(UserMother::some());
+        $meeting->addAParticipant(UserMother::some());
+        $meeting->addAParticipant(UserMother::some());
+        return $meeting;
     }
 }
