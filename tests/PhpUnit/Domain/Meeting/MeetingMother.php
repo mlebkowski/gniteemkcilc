@@ -13,7 +13,7 @@ final class MeetingMother
     {
         return new Meeting(
             '',
-            new DateTimeImmutable(),
+            new DateTimeImmutable('+10 minutes'),
         );
     }
 
@@ -26,5 +26,15 @@ final class MeetingMother
         $meeting->addAParticipant(UserMother::some());
         $meeting->addAParticipant(UserMother::some());
         return $meeting;
+    }
+
+    public static function withPastEndDate(): Meeting
+    {
+        return new Meeting('', new DateTimeImmutable('-2 hours'));
+    }
+
+    public static function inSession(): Meeting
+    {
+        return new Meeting('', new DateTimeImmutable('-30 minutes'));
     }
 }

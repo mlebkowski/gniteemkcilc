@@ -35,10 +35,25 @@ final readonly class Meeting
      */
     public function addAParticipant(User $participant): void
     {
-        if ($this->participants->count() >= self::ParticipantLimit) {
+        if ($this->isFull()) {
             throw Problems\MeetingFullException::ofMeeting($this);
         }
 
         $this->participants->add($participant);
+    }
+
+    public function getStatus(): MeetingStatus
+    {
+        return match (true) {
+            $this->endTime < new DateTimeImmutable() => MeetingStatus::Done,
+            $this->startTime < new DateTimeImmutable() => MeetingStatus::InSession,
+            $this->isFull() => MeetingStatus::Full,
+            default => MeetingStatus::OpenToRegistration,
+        };
+    }
+
+    private function isFull(): bool
+    {
+        return $this->participants->count() >= self::ParticipantLimit;
     }
 }
