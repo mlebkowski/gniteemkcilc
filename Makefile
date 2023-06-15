@@ -9,7 +9,7 @@ PHP_RUN = $(DOCKER_COMP) run php
 PHP      = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY  = $(PHP_CONT) bin/console
-TESTS	 = $(PHP_CONT) bin/phpunit
+TESTS	 = $(PHP_CONT) vendor/bin/phpunit
 BEHAT	 = $(PHP_CONT) vendor/bin/behat
 
 # Misc
@@ -54,7 +54,7 @@ test-unit: up ## Run php unit on fresh container
 		bin/console do:da:dr --force; \
 		bin/console do:da:cr --if-not-exists && bin/console do:sch:upd --force; \
 		bin/console do:sch:val; \
-		bin/phpunit; \
+		vendor/bin/phpunit; \
 	"
 
 test-behat: up ## Run behat on fresh container

@@ -3,19 +3,23 @@ name: php cs fixer
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   php-cs-fixer:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: composer install
-        working-directory: tools/php-cs-fixer
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-      - run: tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --allow-risky=yes -vvv --show-progress=none -q
-      - uses: reviewdog/action-suggester@v1
+      - name: Install dependencies
+        uses: "ramsey/composer-install@v2"
         with:
-          tool_name: php cs fixer
-      - run: tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run -vvv --show-progress=none
+          working-directory: tools/php-cs-fixer
+      - name: Check code style
+        run: tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --allow-risky=yes -vvv --show-progress=none -q
+
