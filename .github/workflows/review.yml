@@ -1,0 +1,58 @@
+name: review
+
+on:
+  pull_request:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: apcu redis json soap amqp bcmath zip pcntl sockets
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - name: Install dependencies
+        uses: php-actions/composer@v5
+        with:
+          php_version: 8.2
+          php_extensions: apcu redis json soap amqp bcmath zip pcntl sockets
+          command: install --no-interaction --prefer-dist --no-scripts
+      - name: Install deptrac dependencies
+        uses: php-actions/composer@v5
+        with:
+          php_version: 8.2
+          php_extensions: apcu redis json soap amqp bcmath zip pcntl sockets
+          command: install --working-dir=tools/deptrac --no-interaction --prefer-dist --no-scripts
+      - name: Phpstan
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euxo pipefail
+          echo 'parameters:' > app/config/packages/dev/secrets.yml
+          ./bin/phpstan --no-progress --memory-limit=1g --error-format=raw analyse \
+          | reviewdog -name=phpstan -f="phpstan" -filter-mode=nofilter -reporter="github-pr-review" -tee \
+          | reviewdog -name=phpstan -f="phpstan" -filter-mode=nofilter -reporter="github-pr-check" -level="error" -tee
+      - name: Deptrac
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tools/deptrac/vendor/bin/deptrac --no-progress --formatter=github-actions \
+          | reviewdog -efm="::error file=%f,line=%l::%m" -name=deptrac -filter-mode=nofilter -reporter="github-pr-review" -tee \
+          | reviewdog -efm="::error file=%f,line=%l::%m" -name=deptrac -filter-mode=nofilter -reporter="github-pr-check" -level="error" -tee
+      - name: Phpunit
+        run: |
+          ./bin/phpunit

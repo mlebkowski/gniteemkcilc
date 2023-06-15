@@ -1,0 +1,23 @@
+deptrac:
+  layers:
+    - collectors:
+        - regex: ^App\\Application\\.+
+          type: className
+      name: Application
+    - collectors:
+        - regex: ^App\\Domain\\.+
+          type: className
+      name: Domain
+    - collectors:
+        - regex: ^App\\Infrastructure\\.+
+          type: className
+      name: Infrastructure
+  paths:
+    - ./src/
+  ruleset:
+    Application:
+      - Domain
+    Infrastructure:
+      - Application
+      - Domain
+  skip_violations:

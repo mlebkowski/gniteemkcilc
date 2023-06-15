@@ -1,20 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Application\Controller;
 
-use App\Repository\MeetingRepository;
+use App\Domain\Meeting\MeetingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-final class DefaultController
+final readonly class DefaultController
 {
-    private MeetingRepository $meetingRepository;
-
-    public function __construct(MeetingRepository $meetingRepository)
+    public function __construct(private MeetingRepository $meetingRepository)
     {
-        $this->meetingRepository = $meetingRepository;
     }
 
     #[Route('/meetings/{id}', name: 'meeting')]

@@ -44,7 +44,6 @@ database-up: ## Spin up dev database
 		composer install; \
 		bin/console about; \
 		bin/console do:da:cr --if-not-exists && bin/console do:sch:upd --force; \
-		bin/console do:fix:lo --no-interaction; \
 	"
 
 ## —— Tests 🧪 ———————————————————————————————————————————————————————————————
@@ -80,5 +79,19 @@ test: up ## Run all tests on fresh container
 	"
 
 ## —— Static analysis 🔎 ———————————————————————————————————————————————————————————————
-cs: up ## Format code
-	docker-compose exec php tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --allow-risky=yes
+tools/deptrac/vendor: up
+	@$(COMPOSER) install --working-dir=tools/deptrac
+
+deptrac: tools/deptrac/vendor ## Validate dependency graph
+	@$(PHP) tools/deptrac/vendor/bin/deptrac --cache-file=tools/deptrac/.deptrac.cache --report-skipped
+
+tools/php-cs-fixer/vendor/bin/php-cs-fixer: up
+	@$(COMPOSER) install --working-dir tools/php-cs-fixer
+
+cs: tools/php-cs-fixer/vendor/bin/php-cs-fixer ## Format code
+	@$(PHP) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v
+
+phpstan: up ## Run static analysis
+	@$(PHP) vendor/bin/phpstan
+
+ci: cs phpstan deptrac ## All static analysis

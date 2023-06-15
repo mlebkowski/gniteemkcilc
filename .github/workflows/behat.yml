@@ -1,0 +1,46 @@
+
+on:
+  pull_request:
+
+jobs:
+  behat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Shutdown Ubuntu MySQL (SUDO)
+        run: sudo service mysql stop
+
+      - name: Set up MySQL
+        run: docker run -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=test -d -p 3306:3306 mariadb:10.5.12 --port=3306 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --sql-mode="IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
+      - uses: actions/checkout@v2
+      - uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: apcu redis json soap amqp bcmath zip pcntl sockets
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - name: Install dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: '8.2'
+          php_extensions: apcu redis json soap amqp bcmath zip pcntl sockets
+          command: install --no-interaction --prefer-dist --no-scripts
+      - name: Behat
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test"
+        run: ./bin/behat --format=progress --colors
