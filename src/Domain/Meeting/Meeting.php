@@ -8,6 +8,7 @@ use DateInterval;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Ulid;
 
 final readonly class Meeting
 {
@@ -24,7 +25,7 @@ final readonly class Meeting
 
     public function __construct(string $name, DateTimeImmutable $startTime)
     {
-        $this->id = uniqid();
+        $this->id = Ulid::generate();
         $this->name = $name;
         $this->startTime = $startTime;
         $this->endTime = $startTime->add(DateInterval::createFromDateString('1 hour'));

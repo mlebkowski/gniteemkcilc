@@ -5,7 +5,11 @@
                           http://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
     <entity name="App\Domain\Meeting\Meeting" table="meeting">
-        <id name="id" />
+        <id name="id" length="26">
+            <options>
+                <option name="fixed">true</option>
+            </options>
+        </id>
         <field name="name" length="255"/>
         <field name="startTime" type="datetime_immutable"/>
         <field name="endTime" type="datetime_immutable"/>
