@@ -21,7 +21,7 @@ services:
     volumes:
       - ./:/var/www/html
     environment:
-      DATABASE_URL: "mysql://root:secret@database:3306/symfony?serverVersion=8&charset=utf8mb4"
+      DATABASE_URL: "mysql://root:secret@database:3306/symfony?serverVersion=8.0.31&charset=utf8mb4"
 
   nginx:
     depends_on:
