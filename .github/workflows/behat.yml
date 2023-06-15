@@ -7,6 +7,8 @@ concurrency:
 
 jobs:
   behat:
+    env:
+      APP_ENV: test
     runs-on: ubuntu-latest
     steps:
       - name: Shutdown Ubuntu MySQL (SUDO)
@@ -40,8 +42,11 @@ jobs:
         with:
           php_version: '8.2'
           command: install --no-interaction --prefer-dist --no-scripts
+      - name: Initialize database schema
+        run: |
+          bin/console doctrine:database:create
+          bin/console doctrine:schema:update --force
       - name: Behat
         env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test"
         run: ./vendor/bin/behat --format=progress --colors
