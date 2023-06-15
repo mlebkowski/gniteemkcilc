@@ -44,6 +44,8 @@ jobs:
           command: install --no-interaction --prefer-dist --no-scripts
       - name: Initialize database schema
         run: |
+          cp .env.test .env
+          bin/console about
           bin/console doctrine:database:create
           bin/console doctrine:schema:update --force
       - name: Behat
