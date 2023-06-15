@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Repository;
 
 use App\Entity\Meeting;
 use Doctrine\ORM\EntityManagerInterface;
 
-class MeetingRepository
+final class MeetingRepository
 {
     private EntityManagerInterface $entityManager;
 

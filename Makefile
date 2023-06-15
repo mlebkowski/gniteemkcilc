@@ -78,3 +78,7 @@ test: up ## Run all tests on fresh container
 		vendor/bin/behat; \
 		bin/phpunit; \
 	"
+
+## —— Static analysis 🔎 ———————————————————————————————————————————————————————————————
+cs: up ## Format code
+	docker-compose exec php tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --allow-risky=yes

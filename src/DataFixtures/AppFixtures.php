@@ -1,13 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
 use App\Entity\Meeting;
 use App\Entity\User;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class AppFixtures extends Fixture
+final class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
@@ -15,11 +17,11 @@ class AppFixtures extends Fixture
         $manager->persist($someUser);
         $anotherUser = new User('Another User');
         $manager->persist($anotherUser);
-        $someMeeting = new Meeting('Meeting 1', new \DateTimeImmutable('2020-01-01'));
+        $someMeeting = new Meeting('Meeting 1', new DateTimeImmutable('2020-01-01'));
         $someMeeting->addAParticipant($someUser);
         $someMeeting->addAParticipant($anotherUser);
         $manager->persist($someMeeting);
-        $anotherMeeting = new Meeting('Meeting 2', new \DateTimeImmutable('2020-01-02'));
+        $anotherMeeting = new Meeting('Meeting 2', new DateTimeImmutable('2020-01-02'));
         $manager->persist($anotherMeeting);
         $manager->flush();
     }

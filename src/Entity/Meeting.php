@@ -1,7 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -9,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: '`meetings`')]
-class Meeting
+final class Meeting
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "NONE")]
@@ -20,20 +23,20 @@ class Meeting
     public readonly string $name;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    public readonly \DateTimeImmutable $startTime;
+    public readonly DateTimeImmutable $startTime;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    public readonly \DateTimeImmutable $endTime;
+    public readonly DateTimeImmutable $endTime;
 
     #[ORM\ManyToMany(targetEntity: User::class)]
     public Collection $participants;
 
-    public function __construct(string $name, \DateTimeImmutable $startTime)
+    public function __construct(string $name, DateTimeImmutable $startTime)
     {
         $this->id = uniqid();
         $this->name = $name;
         $this->startTime = $startTime;
-        $this->endTime = $startTime->add(\DateInterval::createFromDateString('1 hour'));
+        $this->endTime = $startTime->add(DateInterval::createFromDateString('1 hour'));
         $this->participants = new ArrayCollection();
     }
 
